@@ -1,83 +1,60 @@
-import React, {Component} from 'react';
+import React, {useState} from 'react';
+import {v4 as uuidv4} from 'uuid';
 import './App.css';
 import TodoInput from "./Components/TodoInput";
 import TodoList from "./Components/TodoList";
 
-export default class App extends Component {
+const App = () => {
+  const [todos, setTodos] = useState([])
+  const [title, setTitle] = useState('')
+  const [edit, setEdit] = useState(false)
 
-  state = {
-    items: [],
-    id: Date.now().toString(),
-    item: '',
-    editItem: false
-  }
-
-  handleChange = (e) => {
-    this.setState({
-      item: e.target.value
-    })
-  }
-
-  handleSubmit = (e) => {
+  const clearList = () => setTodos([])
+  const handleChange = (e) => setTitle(e.target.value)
+  const handleSubmit = (e) => {
     e.preventDefault()
     const newItem = {
-      id: this.state.id,
-      title: this.state.item
+      id: uuidv4(),
+      title: title,
     }
-    const updatedItems = [...this.state.items, newItem]
-
-    this.setState({
-      items: updatedItems,
-      item: '',
-      id: Date.now().toString(),
-      editItem: false
-    })
+    setTodos([...todos, newItem])
+    setTitle('')
+    setEdit(false)
+  }
+  const handleDelete = (id) => {
+    const filteredItems = todos.filter(item => item.id !== id)
+    setTodos(filteredItems)
+  }
+  const handleEdit = (id) => {
+    const filteredItems = todos.filter(item => item.id !== id)
+    const selectedItems = todos.find(item => item.id === id)
+    setTodos(filteredItems)
+    debugger
+    setTitle(selectedItems.title)
+    setEdit(true)
   }
 
-  clearList = () => {
-    this.setState({
-      items: []
-    })
-  }
-
-  handleDelete = (id) => {
-    const filteredItems = this.state.items.filter(item => item.id !== id)
-    this.setState({
-      items: filteredItems
-    })
-  }
-
-  handleEdit = (id) => {
-    const filteredItems = this.state.items.filter(item => item.id !== id)
-    const selectedItems = this.state.items.find(item => item.id === id)
-    this.setState({
-      items: filteredItems,
-      item: selectedItems.title,
-      id: id,
-      editItem: true
-    })
-  }
-
-  render() {
-    return (
-      <div className="container">
-        <div className="row">
-          <div className="col-10 mx-auto col-md-8 mt-4">
-            <h3 className="text-center">Todo Input</h3>
-            <TodoInput
-              item={this.state.item}
-              handleChange={this.handleChange}
-              handleSubmit={this.handleSubmit}
-              editItem={this.state.editItem}
-            />
-            <TodoList
-              items={this.state.items}
-              clearList={this.clearList}
-              handleDelete={this.handleDelete}
-              handleEdit={this.handleEdit}/>
-          </div>
+  return (
+    <div className="container">
+      <div className="row">
+        <div className="col-10 mx-auto col-md-8 mt-4">
+          <h3 className="text-center">Todo Input</h3>
+          <TodoInput
+            item={title}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+            editItem={edit}
+          />
+          <TodoList
+            items={todos}
+            clearList={clearList}
+            handleDelete={handleDelete}
+            handleEdit={handleEdit}
+          />
         </div>
       </div>
-    )
-  }
+    </div>
+  )
 }
+  
+export default App
